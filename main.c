@@ -56,6 +56,23 @@ int main(int argc, char *argv[])
         recv(sockd, (char *)&buff1, sizeof(buff1), 0x0);
         // Impressao do conteudo - exemplo Endereco Destino e Endereco Origem.
         printf("MAC Destino: %x:%x:%x:%x:%x:%x \n", buff1[0], buff1[1], buff1[2], buff1[3], buff1[4], buff1[5]);
-        printf("MAC Origem:  %x:%x:%x:%x:%x:%x \n\n", buff1[6], buff1[7], buff1[8], buff1[9], buff1[10], buff1[11]);
+        printf("MAC Origem:  %x:%x:%x:%x:%x:%x \n", buff1[6], buff1[7], buff1[8], buff1[9], buff1[10], buff1[11]);
+        printf("Tipo: %x%x\n", buff1[12], buff1[13]);
+        if (buff1[12] == 0x08 && buff1[13] == 0x00)
+        {
+            printf("Protocolo de Enlace: IPv4\n");
+            // Acessar a posicao de protocol [23].
+            printf("Protocol no Cabecalho: %d\n\n", buff1[23]);
+        }
+        else if (buff1[12] == 0x08 && buff1[13] == 0x06)
+        {
+            printf("Protocolo de Enlace: ARP\n\n");
+            // Fim.
+        }
+        else
+        {
+            printf("Protocolo de Enlace: IPv6\n\n");
+            // Acessar a posicao de next header.
+        }
     }
 }
