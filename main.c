@@ -55,24 +55,68 @@ int main(int argc, char *argv[])
     {
         recv(sockd, (char *)&buff1, sizeof(buff1), 0x0);
         // Impressao do conteudo - exemplo Endereco Destino e Endereco Origem.
-        printf("MAC Destino: %x:%x:%x:%x:%x:%x \n", buff1[0], buff1[1], buff1[2], buff1[3], buff1[4], buff1[5]);
+        printf("\n\nMAC Destino: %x:%x:%x:%x:%x:%x \n", buff1[0], buff1[1], buff1[2], buff1[3], buff1[4], buff1[5]);
         printf("MAC Origem:  %x:%x:%x:%x:%x:%x \n", buff1[6], buff1[7], buff1[8], buff1[9], buff1[10], buff1[11]);
-        printf("Tipo: %x%x\n", buff1[12], buff1[13]);
-        if (buff1[12] == 0x08 && buff1[13] == 0x00)
+
+        if (buff1[12] == 0x08 && buff1[13] == 0x00) // IPv4
         {
             printf("Protocolo de Enlace: IPv4\n");
+
             // Acessar a posicao de protocol [23].
-            printf("Protocol no Cabecalho: %d\n\n", buff1[23]);
+            if (buff1[23] == 0x01)
+            {
+                printf("Protocolo ICMP: ICMPv4\n");
+            }
+            else if (buff1[23] == 0x06)
+            {
+                printf("Protocolo de Transporte: TCP\n");
+
+                // Checar a porta:
+
+                // SMTP (Porta 25)
+                if (buff1[36] == 0x00 && buff1[37] == 0x19)
+                {
+                    printf("Protocolo de Aplicacao: SMTP\n");
+                }
+                // HTTP (Porta 80)
+                if (buff1[36] == 0x00 && buff1[37] == 0x50)
+                {
+                    printf("Protocolo de Aplicacao: HTTP\n");
+                }
+                // HTTPS (Porta 443)
+                if (buff1[36] == 0x01 && buff1[37] == 0xbb)
+                {
+                    printf("Protocolo de Aplicacao: HTTPS\n");
+                }
+            }
+            else if (buff1[23] == 0x11)
+            {
+                printf("Protocolo de Transporte: UDP\n");
+
+                // Checar a porta:
+            }
         }
-        else if (buff1[12] == 0x08 && buff1[13] == 0x06)
+        else if (buff1[12] == 0x08 && buff1[13] == 0x06) // ARP
         {
-            printf("Protocolo de Enlace: ARP\n\n");
-            // Fim.
+            printf("Protocolo ARP: ARP\n");
         }
-        else
+        else // IPv6
         {
-            printf("Protocolo de Enlace: IPv6\n\n");
-            // Acessar a posicao de next header.
+            printf("Protocolo de Enlace: IPv6\n");
+
+            // Acessar a posicao de next header [20].
+            if (buff1[20] == 0x3a)
+            {
+                printf("Protocolo ICMP: ICMPv6\n");
+            }
+            else if (buff1[20] == 0x06)
+            {
+                printf("Protocolo de Transporte: TCP\n");
+            }
+            else if (buff1[20] == 0x11)
+            {
+                printf("Protocolo de Transporte: UDP\n");
+            }
         }
     }
 }
