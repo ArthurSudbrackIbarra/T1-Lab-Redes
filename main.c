@@ -53,18 +53,30 @@ void printEthernetHeader(unsigned char buff1[]) {
 // Printa o cabecalho do IPv4.
 void printIPv4Header(unsigned char buff1[]) {
     printf("\n=== CABECALHO IPv4 ===\n");
-    printf("\nVersion: %x\n", buff1[14] >> 4);
+    printf("\nVersion: %d\n", buff1[14] >> 4);
     unsigned char aux = buff1[14] << 4;
-    printf("Header Length: %x\n", aux >> 4);
+    printf("Header Length: %d\n", aux >> 4);
     printf("Differentiated Services Field: %x\n", buff1[15]);
-    printf("Total Length: %x%x\n", buff1[16], buff1[17]);
-    printf("Identification: %x%x\n", buff1[18], buff1[19]);
+    printf("Total Length: %d%d\n", buff1[16], buff1[17]);
+    printf("Identification: %d%d\n", buff1[18], buff1[19]);
     printf("Flags: %x%x\n", buff1[20], buff1[21]);
     printf("Time to Live: %x\n", buff1[22]);
     printf("Protocol: %x\n", buff1[23]);
-    printf("Header Checksum: %x%x\n", buff1[24], buff1[25]);
-    printf("Source: %x:%x:%x:%x\n", buff1[26], buff1[27], buff1[28], buff1[29]);
-    printf("Destination: %x:%x:%x:%x\n", buff1[30], buff1[31], buff1[32], buff1[33]);
+    printf("Header Checksum: %d%d\n", buff1[24], buff1[25]);
+    printf("Source: %d:%d:%d:%d\n", buff1[26], buff1[27], buff1[28], buff1[29]);
+    printf("Destination: %d:%d:%d:%d\n", buff1[30], buff1[31], buff1[32], buff1[33]);
+}
+// Printa o cabecalho do IPv6.
+void printIPv6Header(unsigned char buff1[]) {
+    printf("\n=== CABECALHO IPv6 ===\n");
+    printf("\nVersion: %d\n", buff1[14] >> 4);
+    unsigned char aux = buff1[14] << 4;
+    printf("Traffic Class: %x%x%x%x\n", aux >> 4, buff1[15], buff1[16], buff1[17]);
+    printf("Payload Length: %x%x\n", buff1[18], buff1[19]);
+    printf("Next Header: %x\n", buff1[20]);
+    printf("Hop Limit: %x\n", buff1[21]);
+    printf("Source: %x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x\n", buff1[21], buff1[22], buff1[23], buff1[24], buff1[25], buff1[26], buff1[27], buff1[28], buff1[29], buff1[30], buff1[31], buff1[32], buff1[33], buff1[34], buff1[35], buff1[36]);
+    printf("Destination: %x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x\n", buff1[37], buff1[38], buff1[39], buff1[40], buff1[41], buff1[42], buff1[43], buff1[44], buff1[45], buff1[46], buff1[47], buff1[48], buff1[49], buff1[50], buff1[51], buff1[52]);
 }
 
 int main(int argc, char *argv[])
@@ -172,10 +184,10 @@ int main(int argc, char *argv[])
             printf("Protocolo ARP: ARP\n");
             ARP++;
         }
-        else // IPv6.
+        else if (buff1[12] == 0x86 && buff1[13] == 0xdd) // IPv6.
         {
-            printf("Protocolo de Enlace: IPv6\n");
             IPV6++;
+            printIPv6Header(buff1);
 
             // Acessar a posicao de next header [20].
             if (buff1[20] == 0x3a)
