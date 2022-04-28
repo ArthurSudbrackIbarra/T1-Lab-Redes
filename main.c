@@ -1,4 +1,4 @@
-// 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
+// 
 
 /*-------------------------------------------------------------*/
 /* Exemplo Socket Raw - Captura pacotes recebidos na interface. */
@@ -33,6 +33,40 @@ int sockd;
 int on;
 struct ifreq ifr;
 
+// Cabecalho das funcoes auxiliares.
+void printEthernetHeader(unsigned char buff1[]);
+void printARPHeader(unsigned char buff1[]);
+void printICMPv4Header(unsigned char buff1[]);
+void printICMPv6Header(unsigned char buff1[]);
+void printIPv4Header(unsigned char buff1[]);
+void printIPv6Header(unsigned char buff1[]);
+void printTCPHeader(unsigned char buff1[]);
+void printUDPHeader(unsigned char buff1[]);
+
+// Printa o cabecalho ethernet.
+void printEthernetHeader(unsigned char buff1[]) {
+    printf("\n=== CABECALHO ETHERNET ===\n");
+    printf("\nDestination: %x:%x:%x:%x:%x:%x\n", buff1[0], buff1[1], buff1[2], buff1[3], buff1[4], buff1[5]);
+    printf("Source:  %x:%x:%x:%x:%x:%x\n", buff1[6], buff1[7], buff1[8], buff1[9], buff1[10], buff1[11]);
+    printf("Type: %x%x\n", buff1[12], buff1[13]);
+}
+// Printa o cabecalho do IPv4.
+void printIPv4Header(unsigned char buff1[]) {
+    printf("\n=== CABECALHO IPv4 ===\n");
+    printf("\nVersion: %x\n", buff1[14] >> 4);
+    unsigned char aux = buff1[14] << 4;
+    printf("Header Length: %x\n", aux >> 4);
+    printf("Differentiated Services Field: %x\n", buff1[15]);
+    printf("Total Length: %x%x\n", buff1[16], buff1[17]);
+    printf("Identification: %x%x\n", buff1[18], buff1[19]);
+    printf("Flags: %x%x\n", buff1[20], buff1[21]);
+    printf("Time to Live: %x\n", buff1[22]);
+    printf("Protocol: %x\n", buff1[23]);
+    printf("Header Checksum: %x%x\n", buff1[24], buff1[25]);
+    printf("Source: %x:%x:%x:%x\n", buff1[26], buff1[27], buff1[28], buff1[29]);
+    printf("Destination: %x:%x:%x:%x\n", buff1[30], buff1[31], buff1[32], buff1[33]);
+}
+
 int main(int argc, char *argv[])
 {
     /* Criacao do socket. Todos os pacotes devem ser construidos a partir do protocolo Ethernet. */
@@ -53,6 +87,7 @@ int main(int argc, char *argv[])
     ioctl(sockd, SIOCSIFFLAGS, &ifr);
 
     // Contadores.
+    int ETHERNET = 0;
     int IPV4 = 0;
     int IPV6 = 0;
     int ICMPV4 = 0;
@@ -70,14 +105,14 @@ int main(int argc, char *argv[])
     while (1)
     {
         recv(sockd, (char *)&buff1, sizeof(buff1), 0x0);
-        // Impressao do conteudo - exemplo Endereco Destino e Endereco Origem.
-        printf("\n\nMAC Destino: %x:%x:%x:%x:%x:%x \n", buff1[0], buff1[1], buff1[2], buff1[3], buff1[4], buff1[5]);
-        printf("MAC Origem:  %x:%x:%x:%x:%x:%x \n", buff1[6], buff1[7], buff1[8], buff1[9], buff1[10], buff1[11]);
+
+        ETHERNET++;
+        printEthernetHeader(buff1);
 
         if (buff1[12] == 0x08 && buff1[13] == 0x00) // IPv4.
         {
-            printf("Protocolo de Enlace: IPv4\n");
             IPV4++;
+            printIPv4Header(buff1);
 
             // Acessar a posicao de protocol [23].
             if (buff1[23] == 0x01)
