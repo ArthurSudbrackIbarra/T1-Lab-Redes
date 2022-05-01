@@ -1,0 +1,1 @@
+docker stop t1_lab_redes_container && docker rm t1_lab_redes_container && CALL run.bat

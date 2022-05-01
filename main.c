@@ -1,4 +1,4 @@
-// 
+//
 
 /*-------------------------------------------------------------*/
 /* Exemplo Socket Raw - Captura pacotes recebidos na interface. */
@@ -44,14 +44,16 @@ void printTCPHeader(unsigned char buff1[]);
 void printUDPHeader(unsigned char buff1[]);
 
 // Printa o cabecalho ethernet.
-void printEthernetHeader(unsigned char buff1[]) {
+void printEthernetHeader(unsigned char buff1[])
+{
     printf("\n=== CABECALHO ETHERNET ===\n");
     printf("\nDestination: %x:%x:%x:%x:%x:%x\n", buff1[0], buff1[1], buff1[2], buff1[3], buff1[4], buff1[5]);
     printf("Source:  %x:%x:%x:%x:%x:%x\n", buff1[6], buff1[7], buff1[8], buff1[9], buff1[10], buff1[11]);
     printf("Type: %x%x\n", buff1[12], buff1[13]);
 }
 // Printa o cabecalho do IPv4.
-void printIPv4Header(unsigned char buff1[]) {
+void printIPv4Header(unsigned char buff1[])
+{
     printf("\n=== CABECALHO IPv4 ===\n");
     printf("\nVersion: %d\n", buff1[14] >> 4);
     unsigned char aux = buff1[14] << 4;
@@ -67,7 +69,8 @@ void printIPv4Header(unsigned char buff1[]) {
     printf("Destination: %d:%d:%d:%d\n", buff1[30], buff1[31], buff1[32], buff1[33]);
 }
 // Printa o cabecalho do IPv6.
-void printIPv6Header(unsigned char buff1[]) {
+void printIPv6Header(unsigned char buff1[])
+{
     printf("\n=== CABECALHO IPv6 ===\n");
     printf("\nVersion: %d\n", buff1[14] >> 4);
     unsigned char aux = buff1[14] << 4;
