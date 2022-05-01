@@ -40,7 +40,7 @@ void printICMPv4Header(unsigned char buff1[]);
 void printICMPv6Header(unsigned char buff1[]);
 void printIPv4Header(unsigned char buff1[]);
 void printIPv6Header(unsigned char buff1[]);
-void printTCPHeader(unsigned char buff1[]);
+void printTCPHeader(unsigned char buff1[], char type[]);
 void printUDPHeader(unsigned char buff1[]);
 
 // Printa o cabecalho ethernet.
@@ -90,30 +90,40 @@ void printICMPv4Header(unsigned char buff1[])
 void printICMPv6Header(unsigned char buff1[])
 {
     printf("\n=== CABECALHO ICMPv6 ===\n");
-    printf("Type: %d", buff1[54]);
-    printf("Code: %d", buff1[55]);
-    printf("Checksum: %x%x", buff1[56], buff1[57]);
-    printf("Reserved: %x%x%x%x", buff1[58], buff1[59], buff1[60], buff1[61]);
+    printf("\nType: %d\n", buff1[54]);
+    printf("Code: %d\n", buff1[55]);
+    printf("Checksum: %x%x\n", buff1[56], buff1[57]);
+    printf("Reserved: %x%x%x%x\n", buff1[58], buff1[59], buff1[60], buff1[61]);
     printf("Target Address: %x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x\n", buff1[62], buff1[63], buff1[64], buff1[65], buff1[66], buff1[67], buff1[68], buff1[69], buff1[70], buff1[71], buff1[72], buff1[73], buff1[74], buff1[75], buff1[76], buff1[77]);
-    printf("ICMPv6 Option (Type): %d", buff1[78]);
-    printf("ICMPv6 Option (Length): %d", buff1[79]);
-    printf("ICMPv6 Option (Link-layer Address): %x%x%x%x%x%x", buff1[80], buff1[81], buff1[82], buff1[83], buff1[84], buff1[85]);
+    printf("ICMPv6 Option (Type): %d\n", buff1[78]);
+    printf("ICMPv6 Option (Length): %d\n", buff1[79]);
+    printf("ICMPv6 Option (Link-layer Address): %x%x%x%x%x%x\n", buff1[80], buff1[81], buff1[82], buff1[83], buff1[84], buff1[85]);
 }
 // Printa o cabecalho do TCP
-void printTCPHeader(unsigned char buff1[], char[] type)
+void printTCPHeader(unsigned char buff1[], char type[])
 {
     printf("\n=== CABECALHO TCP ===\n");
+    int offset;
     if (strcmp(type, "IPv4") == 0)
     {
-        // Rever como printar as portas!
-        printf("Source Port: %d%d", buff1[34], buff1[35]);
-        printf("Destination Port: %d%d", buff1[36], buff1[37]);
-        printf("TCP Segment Len: %d", buff1[46]);
-        printf("Sequence Number: %d%d%d%d", buff1[38], buff1[39], buff1[40], buff1[41])
+        offset = 34;
     }
     else if (strcmp(type, "IPv6") == 0)
     {
+        offset = 54;
     }
+    // ! Pensar como printar os hexa para decimal quando ocupam mais de 1 espaco.
+    printf("\nSource Port: %d%d\n", buff1[offset], buff1[offset + 1]);
+    printf("Destination Port: %d%d\n", buff1[offset + 2], buff1[offset + 3]);
+    printf("TCP Segment Len: %d\n", buff1[offset + 4]);
+    printf("Sequence Number: %d%d%d%d\n", buff1[offset + 5], buff1[offset + 6], buff1[offset + 7], buff1[offset + 8]);
+    printf("Acknowledgment Number: %d%d%d%d\n", buff1[offset + 9], buff1[offset + 10], buff1[offset + 11], buff1[offset + 12]);
+    printf("Header Length: %d\n", buff1[offset + 13] >> 4);
+    unsigned char aux = buff1[offset + 13] << 4;
+    printf("Flags: %x%x\n", aux >> 4, buff1[offset + 14]);
+    printf("Window: %d%d\n", buff1[offset + 15], buff1[offset + 16]);
+    printf("Checksum: %x%x\n", buff1[offset + 17], buff1[offset + 18]);
+    printf("Urgent Pointer: %x%x\n", buff1[offset + 19], buff1[offset + 20]);
 }
 
 int main(int argc, char *argv[])
@@ -171,8 +181,8 @@ int main(int argc, char *argv[])
             }
             else if (buff1[23] == 0x06)
             {
-                printf("Protocolo de Transporte: TCP\n");
                 TCP++;
+                printTCPHeader(buff1, "IPv4");
 
                 // Checar a porta:
 
@@ -234,8 +244,8 @@ int main(int argc, char *argv[])
             }
             else if (buff1[20] == 0x06)
             {
-                printf("Protocolo de Transporte: TCP\n");
                 TCP++;
+                printTCPHeader(buff1, "IPv6");
             }
             else if (buff1[20] == 0x11)
             {
