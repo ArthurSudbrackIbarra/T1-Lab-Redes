@@ -43,18 +43,32 @@ void printIPv6Header(unsigned char buff1[]);
 void printTCPHeader(unsigned char buff1[], char type[]);
 void printUDPHeader(unsigned char buff1[]);
 
-// Printa o cabecalho ethernet.
+// Printa o cabecalho do Ethernet.
 void printEthernetHeader(unsigned char buff1[])
 {
-    printf("\n=== CABECALHO ETHERNET ===\n");
+    printf("\n=== HEADER ETHERNET ===\n");
     printf("\nDestination: %x:%x:%x:%x:%x:%x\n", buff1[0], buff1[1], buff1[2], buff1[3], buff1[4], buff1[5]);
     printf("Source:  %x:%x:%x:%x:%x:%x\n", buff1[6], buff1[7], buff1[8], buff1[9], buff1[10], buff1[11]);
     printf("Type: %x%x\n", buff1[12], buff1[13]);
 }
+// Printa o cabecalho do ARP.
+void printARPHeader(unsigned char buff1[])
+{
+    printf("\n=== HEADER ARP ===\n");
+    printf("Hardware Type: %d\n", (buff1[14] << 8) | (buff1[15]));
+    printf("Protocol Type: %x\n", (buff1[16] << 8) | (buff1[17]));
+    printf("Hardware Size: %d\n", buff1[18]);
+    printf("Protocol Size: %d\n", buff1[19]);
+    printf("Opcode: %d\n", (buff1[20] << 8) | (buff1[21]));
+    printf("Sender MAC Address: %x:%x:%x:%x:%x:%x\n", buff1[22], buff1[23], buff1[24], buff1[25], buff1[26], buff1[27]);
+    printf("Sender IP Address: %d:%d:%d:%d\n", buff1[28], buff1[29], buff1[30], buff1[31]);
+    printf("Target MAC Address: %x:%x:%x:%x:%x:%x\n", buff1[32], buff1[33], buff1[34], buff1[35], buff1[36], buff1[37]);
+    printf("Target IP Address: %d:%d:%d:%d\n", buff1[38], buff1[39], buff1[40], buff1[41]);
+}
 // Printa o cabecalho do IPv4.
 void printIPv4Header(unsigned char buff1[])
 {
-    printf("\n=== CABECALHO IPv4 ===\n");
+    printf("\n=== HEADER IPv4 ===\n");
     printf("\nVersion: %d\n", buff1[14] >> 4);
     unsigned char aux = buff1[14] << 4;
     printf("Header Length: %d\n", aux >> 4);
@@ -71,7 +85,7 @@ void printIPv4Header(unsigned char buff1[])
 // Printa o cabecalho do IPv6.
 void printIPv6Header(unsigned char buff1[])
 {
-    printf("\n=== CABECALHO IPv6 ===\n");
+    printf("\n=== HEADER IPv6 ===\n");
     printf("\nVersion: %d\n", buff1[14] >> 4);
     unsigned char aux = buff1[14] << 4;
     printf("Traffic Class: %x%x%x%x\n", aux >> 4, buff1[15], buff1[16], buff1[17]);
@@ -84,12 +98,12 @@ void printIPv6Header(unsigned char buff1[])
 // Printa o cabecalho do ICMPv4
 void printICMPv4Header(unsigned char buff1[])
 {
-    printf("\n=== CABECALHO ICMPv4 ===\n");
+    printf("\n=== HEADER ICMPv4 ===\n");
 }
 // Printa o cabecalho do ICMPv6
 void printICMPv6Header(unsigned char buff1[])
 {
-    printf("\n=== CABECALHO ICMPv6 ===\n");
+    printf("\n=== HEADER ICMPv6 ===\n");
     printf("\nType: %d\n", buff1[54]);
     printf("Code: %d\n", buff1[55]);
     printf("Checksum: %x%x\n", buff1[56], buff1[57]);
@@ -102,7 +116,7 @@ void printICMPv6Header(unsigned char buff1[])
 // Printa o cabecalho do TCP
 void printTCPHeader(unsigned char buff1[], char type[])
 {
-    printf("\n=== CABECALHO TCP ===\n");
+    printf("\n=== HEADER TCP ===\n");
     int offset;
     if (strcmp(type, "IPv4") == 0)
     {
@@ -112,7 +126,6 @@ void printTCPHeader(unsigned char buff1[], char type[])
     {
         offset = 54;
     }
-    // ! Pensar como printar os hexa para decimal quando ocupam mais de 1 espaco.
     printf("\nSource Port: %d\n", (buff1[offset] << 8) | (buff1[offset + 1]));
     printf("Destination Port: %d\n", (buff1[offset + 2] << 8) | (buff1[offset + 3]));
     printf("TCP Segment Len: %d\n", buff1[offset + 4]);
