@@ -59,12 +59,12 @@ void printIPv4Header(unsigned char buff1[])
     unsigned char aux = buff1[14] << 4;
     printf("Header Length: %d\n", aux >> 4);
     printf("Differentiated Services Field: %x\n", buff1[15]);
-    printf("Total Length: %d%d\n", buff1[16], buff1[17]);
-    printf("Identification: %d%d\n", buff1[18], buff1[19]);
+    printf("Total Length: %d\n", (buff1[16] << 8) | (buff1[17]));
+    printf("Identification: %d\n", (buff1[18] << 8) | (buff1[19]));
     printf("Flags: %x%x\n", buff1[20], buff1[21]);
-    printf("Time to Live: %x\n", buff1[22]);
-    printf("Protocol: %x\n", buff1[23]);
-    printf("Header Checksum: %d%d\n", buff1[24], buff1[25]);
+    printf("Time to Live: %d\n", buff1[22]);
+    printf("Protocol: %d\n", buff1[23]);
+    printf("Header Checksum: %d\n", (buff1[24] << 8) | (buff1[25]));
     printf("Source: %d:%d:%d:%d\n", buff1[26], buff1[27], buff1[28], buff1[29]);
     printf("Destination: %d:%d:%d:%d\n", buff1[30], buff1[31], buff1[32], buff1[33]);
 }
@@ -75,9 +75,9 @@ void printIPv6Header(unsigned char buff1[])
     printf("\nVersion: %d\n", buff1[14] >> 4);
     unsigned char aux = buff1[14] << 4;
     printf("Traffic Class: %x%x%x%x\n", aux >> 4, buff1[15], buff1[16], buff1[17]);
-    printf("Payload Length: %x%x\n", buff1[18], buff1[19]);
+    printf("Payload Length: %d\n", (buff1[18] << 8) | (buff1[19]));
     printf("Next Header: %x\n", buff1[20]);
-    printf("Hop Limit: %x\n", buff1[21]);
+    printf("Hop Limit: %d\n", buff1[21]);
     printf("Source: %x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x\n", buff1[21], buff1[22], buff1[23], buff1[24], buff1[25], buff1[26], buff1[27], buff1[28], buff1[29], buff1[30], buff1[31], buff1[32], buff1[33], buff1[34], buff1[35], buff1[36]);
     printf("Destination: %x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x\n", buff1[37], buff1[38], buff1[39], buff1[40], buff1[41], buff1[42], buff1[43], buff1[44], buff1[45], buff1[46], buff1[47], buff1[48], buff1[49], buff1[50], buff1[51], buff1[52]);
 }
@@ -113,15 +113,15 @@ void printTCPHeader(unsigned char buff1[], char type[])
         offset = 54;
     }
     // ! Pensar como printar os hexa para decimal quando ocupam mais de 1 espaco.
-    printf("\nSource Port: %d%d\n", buff1[offset], buff1[offset + 1]);
-    printf("Destination Port: %d%d\n", buff1[offset + 2], buff1[offset + 3]);
+    printf("\nSource Port: %d\n", (buff1[offset] << 8) | (buff1[offset + 1]));
+    printf("Destination Port: %d\n", (buff1[offset + 2] << 8) | (buff1[offset + 3]));
     printf("TCP Segment Len: %d\n", buff1[offset + 4]);
-    printf("Sequence Number: %d%d%d%d\n", buff1[offset + 5], buff1[offset + 6], buff1[offset + 7], buff1[offset + 8]);
-    printf("Acknowledgment Number: %d%d%d%d\n", buff1[offset + 9], buff1[offset + 10], buff1[offset + 11], buff1[offset + 12]);
+    printf("Sequence Number (Raw): %x %x %x %x\n", buff1[offset + 5], buff1[offset + 6], buff1[offset + 7], buff1[offset + 8]);
+    printf("Acknowledgment Number (Raw): %x %x %x %x\n", buff1[offset + 9], buff1[offset + 10], buff1[offset + 11], buff1[offset + 12]);
     printf("Header Length: %d\n", buff1[offset + 13] >> 4);
     unsigned char aux = buff1[offset + 13] << 4;
     printf("Flags: %x%x\n", aux >> 4, buff1[offset + 14]);
-    printf("Window: %d%d\n", buff1[offset + 15], buff1[offset + 16]);
+    printf("Window: %d\n", (buff1[offset + 15] << 8) | (buff1[offset + 16]));
     printf("Checksum: %x%x\n", buff1[offset + 17], buff1[offset + 18]);
     printf("Urgent Pointer: %x%x\n", buff1[offset + 19], buff1[offset + 20]);
 }
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
     ioctl(sockd, SIOCSIFFLAGS, &ifr);
 
     // Contadores.
-    int ETHERNET = 0;
+    int TOTAL_PACKAGES = 0;
     int IPV4 = 0;
     int IPV6 = 0;
     int ICMPV4 = 0;
@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
     {
         recv(sockd, (char *)&buff1, sizeof(buff1), 0x0);
 
-        ETHERNET++;
+        TOTAL_PACKAGES++;
         printEthernetHeader(buff1);
 
         if (buff1[12] == 0x08 && buff1[13] == 0x00) // IPv4.
