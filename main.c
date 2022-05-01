@@ -81,6 +81,40 @@ void printIPv6Header(unsigned char buff1[])
     printf("Source: %x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x\n", buff1[21], buff1[22], buff1[23], buff1[24], buff1[25], buff1[26], buff1[27], buff1[28], buff1[29], buff1[30], buff1[31], buff1[32], buff1[33], buff1[34], buff1[35], buff1[36]);
     printf("Destination: %x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x\n", buff1[37], buff1[38], buff1[39], buff1[40], buff1[41], buff1[42], buff1[43], buff1[44], buff1[45], buff1[46], buff1[47], buff1[48], buff1[49], buff1[50], buff1[51], buff1[52]);
 }
+// Printa o cabecalho do ICMPv4
+void printICMPv4Header(unsigned char buff1[])
+{
+    printf("\n=== CABECALHO ICMPv4 ===\n");
+}
+// Printa o cabecalho do ICMPv6
+void printICMPv6Header(unsigned char buff1[])
+{
+    printf("\n=== CABECALHO ICMPv6 ===\n");
+    printf("Type: %d", buff1[54]);
+    printf("Code: %d", buff1[55]);
+    printf("Checksum: %x%x", buff1[56], buff1[57]);
+    printf("Reserved: %x%x%x%x", buff1[58], buff1[59], buff1[60], buff1[61]);
+    printf("Target Address: %x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x\n", buff1[62], buff1[63], buff1[64], buff1[65], buff1[66], buff1[67], buff1[68], buff1[69], buff1[70], buff1[71], buff1[72], buff1[73], buff1[74], buff1[75], buff1[76], buff1[77]);
+    printf("ICMPv6 Option (Type): %d", buff1[78]);
+    printf("ICMPv6 Option (Length): %d", buff1[79]);
+    printf("ICMPv6 Option (Link-layer Address): %x%x%x%x%x%x", buff1[80], buff1[81], buff1[82], buff1[83], buff1[84], buff1[85]);
+}
+// Printa o cabecalho do TCP
+void printTCPHeader(unsigned char buff1[], char[] type)
+{
+    printf("\n=== CABECALHO TCP ===\n");
+    if (strcmp(type, "IPv4") == 0)
+    {
+        // Rever como printar as portas!
+        printf("Source Port: %d%d", buff1[34], buff1[35]);
+        printf("Destination Port: %d%d", buff1[36], buff1[37]);
+        printf("TCP Segment Len: %d", buff1[46]);
+        printf("Sequence Number: %d%d%d%d", buff1[38], buff1[39], buff1[40], buff1[41])
+    }
+    else if (strcmp(type, "IPv6") == 0)
+    {
+    }
+}
 
 int main(int argc, char *argv[])
 {
@@ -195,8 +229,8 @@ int main(int argc, char *argv[])
             // Acessar a posicao de next header [20].
             if (buff1[20] == 0x3a)
             {
-                printf("Protocolo ICMP: ICMPv6\n");
                 ICMPV6++;
+                printICMPv6Header(buff1);
             }
             else if (buff1[20] == 0x06)
             {
