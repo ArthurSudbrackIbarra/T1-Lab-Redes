@@ -225,11 +225,11 @@ int main(int argc, char *argv[])
         printEthernetHeader(buff1);
 
         // Adicionando no mapa de maquinas:
-        char originIP[20];
-        char destinationIP[20];
+        char originIP[17];
+        char destinationIP[17];
 
-        sprintf(originIP, "%d.%d.%d.%d\n", buff1[26], buff1[27], buff1[28], buff1[29]);
-        sprintf(destinationIP, "%d.%d.%d.%d\n", buff1[30], buff1[31], buff1[32], buff1[33]);
+        sprintf(originIP, "%d.%d.%d.%d", buff1[26], buff1[27], buff1[28], buff1[29]);
+        sprintf(destinationIP, "%d.%d.%d.%d", buff1[30], buff1[31], buff1[32], buff1[33]);
 
         // Origem:
         int *val1 = map_get(&transmitMap, originIP);
@@ -434,18 +434,18 @@ int main(int argc, char *argv[])
     const char *key;
     map_iter_t iter = map_iter(&transmitMap);
 
-    char *highestTransmissionMachineIP = NULL;
     int highestValue = -1;
+    char machineIP[20];
 
     while ((key = map_next(&transmitMap, &iter)))
     {
         int value = *map_get(&transmitMap, key);
         if (value > highestValue)
         {
-            highestTransmissionMachineIP = key;
             highestValue = value;
+            strcpy(machineIP, key);
         }
     }
 
-    printf("Endereco IP da maquina que mais transmitiu pacotes: %s", *highestTransmissionMachineIP);
+    printf("\n\nEndereco IP da maquina que mais transmitiu pacotes: %s", machineIP);
 }
