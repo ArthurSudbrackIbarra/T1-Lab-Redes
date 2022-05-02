@@ -1,0 +1,10 @@
+Para não usuários de Docker:
+
+Para executar o programa em C, você deve ter o gcc versão 4.9 ou superior em seu dispositivo.
+
+Digite os seguintes comandos dentro do diretório em que se encontram os arquivos de código fonte:
+
+1. gcc -Wall -c map.c
+2. gcc -Wall -c main.c
+3. gcc -o main map.o main.o
+4. sudo ./main
