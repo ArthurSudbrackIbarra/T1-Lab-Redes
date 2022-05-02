@@ -22,6 +22,9 @@
 
 #include <netinet/in_systm.h> // Tipos de dados.
 
+// Mapa.
+#include "map.h"
+
 #define BUFFSIZE 1518
 #define MAX_PACKAGES 8 // Quantidade maxima de pacotes que serao recebidos/enviados pelo programa.
 
@@ -84,8 +87,8 @@ void printIPv4Header(unsigned char buff1[])
     printf("Time to Live: %d\n", buff1[22]);
     printf("Protocol: %d\n", buff1[23]);
     printf("Header Checksum: %d\n", (buff1[24] << 8) | (buff1[25]));
-    printf("Source: %d:%d:%d:%d\n", buff1[26], buff1[27], buff1[28], buff1[29]);
-    printf("Destination: %d:%d:%d:%d\n", buff1[30], buff1[31], buff1[32], buff1[33]);
+    printf("Source Address: %d.%d.%d.%d\n", buff1[26], buff1[27], buff1[28], buff1[29]);
+    printf("Destination Adress: %d.%d.%d.%d\n", buff1[30], buff1[31], buff1[32], buff1[33]);
 }
 // Printa o cabecalho do IPv6.
 void printIPv6Header(unsigned char buff1[])
@@ -204,6 +207,13 @@ int main(int argc, char *argv[])
     int DHCP_TRANSMITTED = 0, DHCP_RECEIVED = 0;
     int DNS_TRANSMITTED = 0, DNS_RECEIVED = 0;
 
+    // Mapas para acompanhar qual maquina mais enviou e recebeu pacotes.
+    map_int_t transmitMap;
+    map_init(&transmitMap);
+
+    map_int_t receiveMap;
+    map_init(&receiveMap);
+
     // Recepcao de pacotes.
     while (TOTAL_PACKAGES < MAX_PACKAGES)
     {
@@ -213,6 +223,35 @@ int main(int argc, char *argv[])
 
         TOTAL_PACKAGES++;
         printEthernetHeader(buff1);
+
+        // Adicionando no mapa de maquinas:
+        char originIP[20];
+        char destinationIP[20];
+
+        sprintf(originIP, "%d.%d.%d.%d\n", buff1[26], buff1[27], buff1[28], buff1[29]);
+        sprintf(destinationIP, "%d.%d.%d.%d\n", buff1[30], buff1[31], buff1[32], buff1[33]);
+
+        // Origem:
+        int *val1 = map_get(&transmitMap, originIP);
+        if (val1)
+        {
+            map_set(&transmitMap, originIP, (*val1) + 1);
+        }
+        else
+        {
+            map_set(&transmitMap, originIP, 1);
+        }
+
+        // Destino:
+        int *val2 = map_get(&receiveMap, originIP);
+        if (val2)
+        {
+            map_set(&receiveMap, originIP, (*val2) + 1);
+        }
+        else
+        {
+            map_set(&receiveMap, originIP, 1);
+        }
 
         if (buff1[12] == 0x08 && buff1[13] == 0x00) // IPv4.
         {
@@ -391,4 +430,22 @@ int main(int argc, char *argv[])
     {
         printf("\nProtocolo de aplicacao mais usado nas recepcoes: DNS");
     }
+
+    const char *key;
+    map_iter_t iter = map_iter(&transmitMap);
+
+    char *highestTransmissionMachineIP = NULL;
+    int highestValue = -1;
+
+    while ((key = map_next(&transmitMap, &iter)))
+    {
+        int value = *map_get(&transmitMap, key);
+        if (value > highestValue)
+        {
+            highestTransmissionMachineIP = key;
+            highestValue = value;
+        }
+    }
+
+    printf("Endereco IP da maquina que mais transmitiu pacotes: %s", *highestTransmissionMachineIP);
 }
