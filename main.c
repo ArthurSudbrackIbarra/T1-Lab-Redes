@@ -40,7 +40,7 @@ void printICMPv4Header(unsigned char buff1[]);
 void printICMPv6Header(unsigned char buff1[]);
 void printIPv4Header(unsigned char buff1[]);
 void printIPv6Header(unsigned char buff1[]);
-void printTCPHeader(unsigned char buff1[], char type[]);
+void printTCPHeader(unsigned char buff1[], char networkProtocol[]);
 void printUDPHeader(unsigned char buff1[]);
 
 // Printa o cabecalho do Ethernet.
@@ -55,7 +55,7 @@ void printEthernetHeader(unsigned char buff1[])
 void printARPHeader(unsigned char buff1[])
 {
     printf("\n=== HEADER ARP ===\n");
-    printf("Hardware Type: %d\n", (buff1[14] << 8) | (buff1[15]));
+    printf("\nHardware Type: %d\n", (buff1[14] << 8) | (buff1[15]));
     printf("Protocol Type: %x\n", (buff1[16] << 8) | (buff1[17]));
     printf("Hardware Size: %d\n", buff1[18]);
     printf("Protocol Size: %d\n", buff1[19]);
@@ -99,6 +99,11 @@ void printIPv6Header(unsigned char buff1[])
 void printICMPv4Header(unsigned char buff1[])
 {
     printf("\n=== HEADER ICMPv4 ===\n");
+    printf("\nType: %d\n", buff1[34]);
+    printf("Code: %d\n", buff1[35]);
+    printf("Checksum: %x\n", (buff1[36] << 8) | (buff1[37]));
+    printf("Identifier: %x %x\n", buff1[38], buff1[39]);
+    printf("Sequence Number: %x %x\n", buff1[40], buff1[41]);
 }
 // Printa o cabecalho do ICMPv6
 void printICMPv6Header(unsigned char buff1[])
@@ -106,7 +111,7 @@ void printICMPv6Header(unsigned char buff1[])
     printf("\n=== HEADER ICMPv6 ===\n");
     printf("\nType: %d\n", buff1[54]);
     printf("Code: %d\n", buff1[55]);
-    printf("Checksum: %x%x\n", buff1[56], buff1[57]);
+    printf("Checksum: %x\n", (buff1[56] << 8) | (buff1[57]));
     printf("Reserved: %x%x%x%x\n", buff1[58], buff1[59], buff1[60], buff1[61]);
     printf("Target Address: %x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x\n", buff1[62], buff1[63], buff1[64], buff1[65], buff1[66], buff1[67], buff1[68], buff1[69], buff1[70], buff1[71], buff1[72], buff1[73], buff1[74], buff1[75], buff1[76], buff1[77]);
     printf("ICMPv6 Option (Type): %d\n", buff1[78]);
@@ -114,29 +119,30 @@ void printICMPv6Header(unsigned char buff1[])
     printf("ICMPv6 Option (Link-layer Address): %x%x%x%x%x%x\n", buff1[80], buff1[81], buff1[82], buff1[83], buff1[84], buff1[85]);
 }
 // Printa o cabecalho do TCP
-void printTCPHeader(unsigned char buff1[], char type[])
+void printTCPHeader(unsigned char buff1[], char networkProtocol[])
 {
     printf("\n=== HEADER TCP ===\n");
     int offset;
-    if (strcmp(type, "IPv4") == 0)
+    if (strcmp(networkProtocol, "IPv4") == 0)
     {
         offset = 34;
     }
-    else if (strcmp(type, "IPv6") == 0)
+    else if (strcmp(networkProtocol, "IPv6") == 0)
     {
         offset = 54;
     }
+    printf("\nOffset: %d\n", offset);
     printf("\nSource Port: %d\n", (buff1[offset] << 8) | (buff1[offset + 1]));
     printf("Destination Port: %d\n", (buff1[offset + 2] << 8) | (buff1[offset + 3]));
-    printf("TCP Segment Len: %d\n", buff1[offset + 4]);
-    printf("Sequence Number (Raw): %x %x %x %x\n", buff1[offset + 5], buff1[offset + 6], buff1[offset + 7], buff1[offset + 8]);
-    printf("Acknowledgment Number (Raw): %x %x %x %x\n", buff1[offset + 9], buff1[offset + 10], buff1[offset + 11], buff1[offset + 12]);
-    printf("Header Length: %d\n", buff1[offset + 13] >> 4);
-    unsigned char aux = buff1[offset + 13] << 4;
-    printf("Flags: %x%x\n", aux >> 4, buff1[offset + 14]);
-    printf("Window: %d\n", (buff1[offset + 15] << 8) | (buff1[offset + 16]));
-    printf("Checksum: %x%x\n", buff1[offset + 17], buff1[offset + 18]);
-    printf("Urgent Pointer: %x%x\n", buff1[offset + 19], buff1[offset + 20]);
+    printf("TCP Segment Len: %d\n", buff1[offset + 11]);
+    printf("Sequence Number (Raw): %x %x %x %x\n", buff1[offset + 4], buff1[offset + 5], buff1[offset + 6], buff1[offset + 7]);
+    printf("Acknowledgment Number (Raw): %x %x %x %x\n", buff1[offset + 8], buff1[offset + 9], buff1[offset + 10], buff1[offset + 11]);
+    printf("Header Length: %d\n", buff1[offset + 12] >> 4);
+    unsigned char aux = buff1[offset + 12] << 4;
+    printf("Flags: %x%x\n", aux >> 4, buff1[offset + 13]);
+    printf("Window: %d\n", (buff1[offset + 14] << 8) | (buff1[offset + 15]));
+    printf("Checksum: %x\n", (buff1[offset + 16] << 8) | (buff1[offset + 17]));
+    printf("Urgent Pointer: %x%x\n", buff1[offset + 18], buff1[offset + 19]);
 }
 
 int main(int argc, char *argv[])
@@ -189,8 +195,8 @@ int main(int argc, char *argv[])
             // Acessar a posicao de protocol [23].
             if (buff1[23] == 0x01)
             {
-                printf("Protocolo ICMP: ICMPv4\n");
                 ICMPV4++;
+                printICMPv4Header(buff1);
             }
             else if (buff1[23] == 0x06)
             {
@@ -241,8 +247,8 @@ int main(int argc, char *argv[])
         }
         else if (buff1[12] == 0x08 && buff1[13] == 0x06) // ARP.
         {
-            printf("Protocolo ARP: ARP\n");
             ARP++;
+            printARPHeader(buff1);
         }
         else if (buff1[12] == 0x86 && buff1[13] == 0xdd) // IPv6.
         {
