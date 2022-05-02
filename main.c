@@ -23,6 +23,11 @@
 #include <netinet/in_systm.h> // Tipos de dados.
 
 #define BUFFSIZE 1518
+#define MAX_PACKAGES 10 // Quantidade maxima de pacotes que serao recebidos/enviados pelo programa.
+
+// Funcoes auxiliares de maximo e minimo.
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 // Atencao!! Confira no /usr/include do seu sisop o nome correto
 // das estruturas de dados dos protocolos.
@@ -174,30 +179,33 @@ int main(int argc, char *argv[])
     }
 
     // O procedimento abaixo eh utilizado para "setar" a interface em modo promiscuo.
-    strcpy(ifr.ifr_name, "enp4s0");
+    strcpy(ifr.ifr_name, "eth0");
     if (ioctl(sockd, SIOCGIFINDEX, &ifr) < 0)
-        printf("erro no ioctl!");
+        printf("Erro no ioctl!");
     ioctl(sockd, SIOCGIFFLAGS, &ifr);
     ifr.ifr_flags |= IFF_PROMISC;
     ioctl(sockd, SIOCSIFFLAGS, &ifr);
 
     // Contadores.
     int TOTAL_PACKAGES = 0;
+
     int IPV4 = 0;
     int IPV6 = 0;
     int ICMPV4 = 0;
     int ICMPV6 = 0;
     int ARP = 0;
+
     int TCP = 0;
     int UDP = 0;
-    int SMTP = 0;
-    int HTTP = 0;
-    int HTTPS = 0;
-    int DHCP = 0;
-    int DNS = 0;
+
+    int SMTP_TRANSMITTED = 0, SMTP_RECEIVED = 0;
+    int HTTP_TRANSMITTED = 0, HTTP_RECEIVED = 0;
+    int HTTPS_TRANSMITTED = 0, HTTPS_RECEIVED = 0;
+    int DHCP_TRANSMITTED = 0, DHCP_RECEIVED = 0;
+    int DNS_TRANSMITTED = 0, DNS_RECEIVED = 0;
 
     // Recepcao de pacotes.
-    while (1)
+    while (TOTAL_PACKAGES < MAX_PACKAGES)
     {
         recv(sockd, (char *)&buff1, sizeof(buff1), 0x0);
 
@@ -220,25 +228,39 @@ int main(int argc, char *argv[])
                 TCP++;
                 printTCPHeader(buff1, "IPv4");
 
-                // Checar a porta:
+                // Checar a porta destino:
 
                 // SMTP (Porta 25).
                 if (buff1[36] == 0x00 && buff1[37] == 0x19)
                 {
-                    printf("Protocolo de Aplicacao: SMTP\n");
-                    SMTP++;
+                    printf("\nProtocolo de Aplicacao: SMTP\n");
+                    SMTP_TRANSMITTED++;
                 }
                 // HTTP (Porta 80).
                 else if (buff1[36] == 0x00 && buff1[37] == 0x50)
                 {
-                    printf("Protocolo de Aplicacao: HTTP\n");
-                    HTTP++;
+                    printf("\nProtocolo de Aplicacao: HTTP\n");
+                    HTTP_TRANSMITTED++;
                 }
                 // HTTPS (Porta 443).
                 else if (buff1[36] == 0x01 && buff1[37] == 0xbb)
                 {
-                    printf("Protocolo de Aplicacao: HTTPS\n");
-                    HTTPS++;
+                    printf("\nProtocolo de Aplicacao: HTTPS\n");
+                    HTTPS_TRANSMITTED++;
+                }
+
+                // Checar a porta origem:
+                if (buff1[34] == 0x00 && buff1[35] == 0x19)
+                {
+                    SMTP_RECEIVED++;
+                }
+                else if (buff1[34] == 0x00 && buff1[35] == 0x50)
+                {
+                    HTTP_RECEIVED++;
+                }
+                else if (buff1[34] == 0x01 && buff1[35] == 0xbb)
+                {
+                    HTTPS_RECEIVED++;
                 }
             }
             else if (buff1[23] == 0x11)
@@ -246,19 +268,30 @@ int main(int argc, char *argv[])
                 UDP++;
                 printUDPHeader(buff1, "IPv4");
 
-                // Checar a porta:
+                // Checar a porta destino:
 
                 // DHCP (Porta 67).
                 if (buff1[36] == 0x00 && buff1[37] == 0x43)
                 {
-                    printf("Protocolo de Aplicacao: DHCP\n");
-                    DHCP++;
+                    printf("\nProtocolo de Aplicacao: DHCP\n");
+                    DHCP_TRANSMITTED++;
                 }
                 // DNS (Porta 53).
                 else if (buff1[36] == 0x00 && buff1[37] == 0x35)
                 {
-                    printf("Protocolo de Aplicacao: DNS\n");
-                    DNS++;
+                    printf("\nProtocolo de Aplicacao: DNS\n");
+                    DNS_TRANSMITTED++;
+                }
+
+                // Checar a porta origem:
+
+                if (buff1[36] == 0x00 && buff1[37] == 0x43)
+                {
+                    DHCP_RECEIVED++;
+                }
+                else if (buff1[36] == 0x00 && buff1[37] == 0x35)
+                {
+                    DNS_RECEIVED++;
                 }
             }
         }
@@ -289,5 +322,43 @@ int main(int argc, char *argv[])
                 printUDPHeader(buff1, "IPv6");
             }
         }
+    }
+
+    // Estatisticas.
+    printf("\n<---- Estatisticas ---->\n");
+
+    printf("\nTotal de pacotes capturados: %d", TOTAL_PACKAGES);
+    printf("\n%c de pacotes ARP capturados: %.3f", '%', ((float)ARP / TOTAL_PACKAGES) * 100);
+    printf("\n%c de pacotes IPv4 capturados: %.3f", '%', ((float)IPV4 / TOTAL_PACKAGES) * 100);
+    printf("\n%c de pacotes IPv6 capturados: %.3f", '%', ((float)IPV6 / TOTAL_PACKAGES) * 100);
+    printf("\n%c de pacotes ICMPv4 capturados: %.3f", '%', ((float)ICMPV4 / TOTAL_PACKAGES) * 100);
+    printf("\n%c de pacotes ICMPv6 capturados: %.3f", '%', ((float)ICMPV6 / TOTAL_PACKAGES) * 100);
+    printf("\n%c de pacotes TCP capturados: %3f", '%', ((float)TCP / TOTAL_PACKAGES) * 100);
+    printf("\n\% de pacotes UDP capturados: %.3f", '%', ((float)UDP / TOTAL_PACKAGES) * 100);
+
+    int mostTransmittedAplication = MAX(SMTP_TRANSMITTED, HTTP_TRANSMITTED);
+    mostTransmittedAplication = MAX(mostTransmittedAplication, HTTPS_TRANSMITTED);
+    mostTransmittedAplication = MAX(mostTransmittedAplication, DHCP_TRANSMITTED);
+    mostTransmittedAplication = MAX(mostTransmittedAplication, DNS_TRANSMITTED);
+
+    if (mostTransmittedAplication == SMTP_TRANSMITTED)
+    {
+        printf("Protocolo de aplicacao mais usado nas transmissoes: SMTP");
+    }
+    else if (mostTransmittedAplication == HTTP_TRANSMITTED)
+    {
+        printf("Protocolo de aplicacao mais usado nas transmissoes: HTTP");
+    }
+    else if (mostTransmittedAplication == HTTPS_TRANSMITTED)
+    {
+        printf("Protocolo de aplicacao mais usado nas transmissoes: HTTPS");
+    }
+    else if (mostTransmittedAplication == DHCP_TRANSMITTED)
+    {
+        printf("Protocolo de aplicacao mais usado nas transmissoes: DHCP");
+    }
+    else if (mostTransmittedAplication == DNS_TRANSMITTED)
+    {
+        printf("Protocolo de aplicacao mais usado nas transmissoes: DNS");
     }
 }
