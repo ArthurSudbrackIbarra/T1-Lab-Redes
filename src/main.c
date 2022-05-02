@@ -448,4 +448,22 @@ int main(int argc, char *argv[])
     }
 
     printf("\n\nEndereco IP da maquina que mais transmitiu pacotes: %s", machineIP);
+
+    const char *key2;
+    map_iter_t iter2 = map_iter(&receiveMap);
+
+    int highestValue2 = -1;
+    char machineIP2[20];
+
+    while ((key2 = map_next(&receiveMap, &iter2)))
+    {
+        int value2 = *map_get(&receiveMap, key2);
+        if (value2 > highestValue2)
+        {
+            highestValue2 = value2;
+            strcpy(machineIP2, key2);
+        }
+    }
+
+    printf("\nEndereco IP da maquina que mais recebeu pacotes: %s\n", machineIP2);
 }
