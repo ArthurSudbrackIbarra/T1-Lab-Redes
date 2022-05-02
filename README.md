@@ -1,4 +1,4 @@
-# T1_Lab_Redes
+# T1-Lab-Redes
 
 Trabalho 1 de Laboratório de Redes.
 
