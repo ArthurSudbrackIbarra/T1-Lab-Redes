@@ -26,7 +26,7 @@
 #include "map.h"
 
 #define BUFFSIZE 1518
-#define MAX_PACKAGES 8 // Quantidade maxima de pacotes que serao recebidos/enviados pelo programa.
+#define MAX_PACKAGES 1000 // Quantidade maxima de pacotes que serao recebidos/enviados pelo programa.
 
 // Funcoes auxiliares de maximo e minimo.
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
