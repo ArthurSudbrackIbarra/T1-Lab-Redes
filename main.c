@@ -23,7 +23,7 @@
 #include <netinet/in_systm.h> // Tipos de dados.
 
 #define BUFFSIZE 1518
-#define MAX_PACKAGES 10 // Quantidade maxima de pacotes que serao recebidos/enviados pelo programa.
+#define MAX_PACKAGES 8 // Quantidade maxima de pacotes que serao recebidos/enviados pelo programa.
 
 // Funcoes auxiliares de maximo e minimo.
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
@@ -209,6 +209,8 @@ int main(int argc, char *argv[])
     {
         recv(sockd, (char *)&buff1, sizeof(buff1), 0x0);
 
+        printf("\n<<<<< INICIO DO PACOTE >>>>>\n");
+
         TOTAL_PACKAGES++;
         printEthernetHeader(buff1);
 
@@ -322,19 +324,21 @@ int main(int argc, char *argv[])
                 printUDPHeader(buff1, "IPv6");
             }
         }
+
+        printf("\n<<<<< FIM DO PACOTE >>>>>\n");
     }
 
     // Estatisticas.
     printf("\n<---- Estatisticas ---->\n");
 
     printf("\nTotal de pacotes capturados: %d", TOTAL_PACKAGES);
-    printf("\n%c de pacotes ARP capturados: %.3f", '%', ((float)ARP / TOTAL_PACKAGES) * 100);
-    printf("\n%c de pacotes IPv4 capturados: %.3f", '%', ((float)IPV4 / TOTAL_PACKAGES) * 100);
-    printf("\n%c de pacotes IPv6 capturados: %.3f", '%', ((float)IPV6 / TOTAL_PACKAGES) * 100);
-    printf("\n%c de pacotes ICMPv4 capturados: %.3f", '%', ((float)ICMPV4 / TOTAL_PACKAGES) * 100);
-    printf("\n%c de pacotes ICMPv6 capturados: %.3f", '%', ((float)ICMPV6 / TOTAL_PACKAGES) * 100);
-    printf("\n%c de pacotes TCP capturados: %3f", '%', ((float)TCP / TOTAL_PACKAGES) * 100);
-    printf("\n\% de pacotes UDP capturados: %.3f", '%', ((float)UDP / TOTAL_PACKAGES) * 100);
+    printf("\n\n%c de pacotes ARP capturados: %.2f", '%', ((float)ARP / TOTAL_PACKAGES) * 100);
+    printf("\n%c de pacotes IPv4 capturados: %.2f", '%', ((float)IPV4 / TOTAL_PACKAGES) * 100);
+    printf("\n%c de pacotes IPv6 capturados: %.2f", '%', ((float)IPV6 / TOTAL_PACKAGES) * 100);
+    printf("\n%c de pacotes ICMPv4 capturados: %.2f", '%', ((float)ICMPV4 / TOTAL_PACKAGES) * 100);
+    printf("\n%c de pacotes ICMPv6 capturados: %.2f", '%', ((float)ICMPV6 / TOTAL_PACKAGES) * 100);
+    printf("\n%c de pacotes TCP capturados: %2f", '%', ((float)TCP / TOTAL_PACKAGES) * 100);
+    printf("\n%c de pacotes UDP capturados: %.2f\n", '%', ((float)UDP / TOTAL_PACKAGES) * 100);
 
     int mostTransmittedAplication = MAX(SMTP_TRANSMITTED, HTTP_TRANSMITTED);
     mostTransmittedAplication = MAX(mostTransmittedAplication, HTTPS_TRANSMITTED);
@@ -343,22 +347,48 @@ int main(int argc, char *argv[])
 
     if (mostTransmittedAplication == SMTP_TRANSMITTED)
     {
-        printf("Protocolo de aplicacao mais usado nas transmissoes: SMTP");
+        printf("\nProtocolo de aplicacao mais usado nas transmissoes: SMTP");
     }
     else if (mostTransmittedAplication == HTTP_TRANSMITTED)
     {
-        printf("Protocolo de aplicacao mais usado nas transmissoes: HTTP");
+        printf("\nProtocolo de aplicacao mais usado nas transmissoes: HTTP");
     }
     else if (mostTransmittedAplication == HTTPS_TRANSMITTED)
     {
-        printf("Protocolo de aplicacao mais usado nas transmissoes: HTTPS");
+        printf("\nProtocolo de aplicacao mais usado nas transmissoes: HTTPS");
     }
     else if (mostTransmittedAplication == DHCP_TRANSMITTED)
     {
-        printf("Protocolo de aplicacao mais usado nas transmissoes: DHCP");
+        printf("\nProtocolo de aplicacao mais usado nas transmissoes: DHCP");
     }
     else if (mostTransmittedAplication == DNS_TRANSMITTED)
     {
-        printf("Protocolo de aplicacao mais usado nas transmissoes: DNS");
+        printf("\nProtocolo de aplicacao mais usado nas transmissoes: DNS");
+    }
+
+    int mostReceivedAplication = MAX(SMTP_RECEIVED, HTTP_RECEIVED);
+    mostReceivedAplication = MAX(mostReceivedAplication, HTTPS_RECEIVED);
+    mostReceivedAplication = MAX(mostReceivedAplication, DHCP_RECEIVED);
+    mostReceivedAplication = MAX(mostReceivedAplication, DNS_RECEIVED);
+
+    if (mostReceivedAplication == SMTP_RECEIVED)
+    {
+        printf("\nProtocolo de aplicacao mais usado nas recepcoes: SMTP");
+    }
+    else if (mostReceivedAplication == HTTP_RECEIVED)
+    {
+        printf("\nProtocolo de aplicacao mais usado nas recepcoes: HTTP");
+    }
+    else if (mostReceivedAplication == HTTPS_RECEIVED)
+    {
+        printf("\nProtocolo de aplicacao mais usado nas recepcoes: HTTPS");
+    }
+    else if (mostReceivedAplication == DHCP_RECEIVED)
+    {
+        printf("\nProtocolo de aplicacao mais usado nas recepcoes: DHCP");
+    }
+    else if (mostReceivedAplication == DNS_RECEIVED)
+    {
+        printf("\nProtocolo de aplicacao mais usado nas recepcoes: DNS");
     }
 }
