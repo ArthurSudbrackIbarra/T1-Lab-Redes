@@ -465,5 +465,5 @@ int main(int argc, char *argv[])
         }
     }
 
-    printf("\nEndereco IP da maquina que mais recebeu pacotes: %s\n", machineIP2);
+    printf("\nEndereco IP da maquina que mais recebeu pacotes: %s\n\n", machineIP2);
 }
