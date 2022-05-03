@@ -26,7 +26,7 @@
 #include "map.h"
 
 #define BUFFSIZE 1518
-#define MAX_PACKAGES 1000 // Quantidade maxima de pacotes que serao recebidos/enviados pelo programa.
+#define MAX_PACKAGES 500 // Quantidade maxima de pacotes que serao recebidos/enviados pelo programa.
 
 // Funcoes auxiliares de maximo e minimo.
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
@@ -371,13 +371,13 @@ int main(int argc, char *argv[])
     printf("\n<---- Estatisticas ---->\n");
 
     printf("\nTotal de pacotes capturados: %d", TOTAL_PACKAGES);
-    printf("\n\n%c de pacotes ARP capturados: %.2f", '%', ((float)ARP / TOTAL_PACKAGES) * 100);
-    printf("\n%c de pacotes IPv4 capturados: %.2f", '%', ((float)IPV4 / TOTAL_PACKAGES) * 100);
-    printf("\n%c de pacotes IPv6 capturados: %.2f", '%', ((float)IPV6 / TOTAL_PACKAGES) * 100);
-    printf("\n%c de pacotes ICMPv4 capturados: %.2f", '%', ((float)ICMPV4 / TOTAL_PACKAGES) * 100);
-    printf("\n%c de pacotes ICMPv6 capturados: %.2f", '%', ((float)ICMPV6 / TOTAL_PACKAGES) * 100);
-    printf("\n%c de pacotes TCP capturados: %2f", '%', ((float)TCP / TOTAL_PACKAGES) * 100);
-    printf("\n%c de pacotes UDP capturados: %.2f\n", '%', ((float)UDP / TOTAL_PACKAGES) * 100);
+    printf("\n\n%c de pacotes ARP capturados: %.3f", '%', ((float) ARP / TOTAL_PACKAGES) * 100);
+    printf("\n%c de pacotes IPv4 capturados: %.3f", '%', ((float) IPV4 / TOTAL_PACKAGES) * 100);
+    printf("\n%c de pacotes IPv6 capturados: %.3f", '%', ((float) IPV6 / TOTAL_PACKAGES) * 100);
+    printf("\n%c de pacotes ICMPv4 capturados: %.3f", '%', ((float) ICMPV4 / TOTAL_PACKAGES) * 100);
+    printf("\n%c de pacotes ICMPv6 capturados: %.3f", '%', ((float) ICMPV6 / TOTAL_PACKAGES) * 100);
+    printf("\n%c de pacotes TCP capturados: %.3f", '%', ((float) TCP / TOTAL_PACKAGES) * 100);
+    printf("\n%c de pacotes UDP capturados: %.3f\n", '%', ((float) UDP / TOTAL_PACKAGES) * 100);
 
     int mostTransmittedAplication = MAX(SMTP_TRANSMITTED, HTTP_TRANSMITTED);
     mostTransmittedAplication = MAX(mostTransmittedAplication, HTTPS_TRANSMITTED);
